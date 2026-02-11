@@ -36,6 +36,11 @@ ui <- page_sidebar(
       min = min(heart$AGE),
       max = max(heart$AGE),
       value = c(min(heart$AGE), max(heart$AGE))
+    ),
+    actionButton(
+      inputId = "reset",
+      label = "Reset",
+      icon = bsicons::bs_icon("arrow-counterclockwise")
     )
     
   ),
@@ -143,6 +148,14 @@ server <- function(input, output, session) {
       geom_smooth(method = "lm", se = FALSE) +
       theme_minimal()
     ggplotly(p)
+  })
+  # Reset observation
+  observeEvent(input$reset, {
+    updateSelectInput(session, "outcome", selected = "All")
+    updateSelectInput(session, "diagnosis", selected = "All")
+    updateSelectInput(session, "drg", selected = "All")
+    updateSliderInput(session, "age_range",
+                      value = c(min(heart$AGE), max(heart$AGE)))
   })
   
 }
