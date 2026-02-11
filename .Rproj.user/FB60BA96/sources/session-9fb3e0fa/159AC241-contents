@@ -1,5 +1,7 @@
 library(shiny)
 library(bslib)
+library(ggplot2)
+library(plotly)
 #library(DT) # recommended use is DT::fun() structure to reduce time
 
 heart <- readRDS("data/heart.rds")
@@ -53,12 +55,22 @@ ui <- page_sidebar(
           value = textOutput("m_mortality"),
           theme = "primary",
           showcase = bsicons::bs_icon("gender-male")
+        ),
+        value_box(
+          title = "All Mortality",
+          value = textOutput("a_mortality"),
+          theme = "primary",
+          showcase = bsicons::bs_icon("gender-trans")
+        ),
+        card(
+          card_header("Age Distribution"),
+          plotOutput("age_hist")
         )
       )
     ),
     nav_panel(
       "Explore", 
-      "Explore content coming soon..."
+      plotlOutput("scatter_plot")
     ),
     nav_panel(
       "Data", 
@@ -68,10 +80,7 @@ ui <- page_sidebar(
 )
 
 server <- function(input, output, session) {
-  output$data_table <- DT::renderDataTable({
-    filtered_data()
-  })
-  # Filter logic
+  # Filter logic, Best Practice: Locate reactives at beginning of server
   filtered_data <- reactive({
     d <- heart
     if (input$outcome != "All") {
@@ -86,6 +95,12 @@ server <- function(input, output, session) {
     d <- d[d$AGE >= input$age_range[1] & d$AGE <= input$age_range[2], ]
     d
   })
+  
+  # Data table
+  output$data_table <- DT::renderDataTable({
+    filtered_data()
+  })
+
   # Female stats
   output$f_mortality <- renderText({
     d <- filtered_data()[filtered_data()$SEX == "Female", ]
@@ -96,6 +111,24 @@ server <- function(input, output, session) {
   output$m_mortality <- renderText({
     d <- filtered_data()[filtered_data()$SEX == "Male", ]
     paste0(round(100 * sum(d$DIED == "Died") / nrow(d), 1), "%")
+  })
+  # All stats
+  output$a_mortality <- renderText({
+    d <- filtered_data()
+    paste0(round(100 * sum(d$DIED == "Died") / nrow(d), 1), "%")
+  })
+  # Age Histogram
+  output$age_hist <- renderPlot({
+    req(nrow(filtered_data()) >= 2)
+    ggplot(filtered_data(), aes(x = AGE, fill = SEX)) +
+      geom_density(alpha = 0.5) +
+      labs(x = "Age", y = "Density", fill = "SEX") +
+      #facet_wrap(~ SEX) +
+      theme_minimal() +
+      theme(
+        axis.title = element_text(size = 16),
+        axis.text = element_text(size = 14)
+      )
   })
   
 }
