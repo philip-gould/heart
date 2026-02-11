@@ -3,7 +3,7 @@
     "path": "D:/R_projects/Shinyworkshop/heart/app.R",
     "project_path": "app.R",
     "type": "r_source",
-    "hash": "2674763024",
+    "hash": "3263341427",
     "contents": "",
     "dirty": false,
     "created": 1770816812352.0,
@@ -13,15 +13,15 @@
         "tempName": "Untitled1",
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "50,2",
-        "scrollLine": "31"
+        "cursorPosition": "45,37",
+        "scrollLine": "37"
     },
     "folds": "",
-    "lastKnownWriteTime": 1770817748,
+    "lastKnownWriteTime": 1770819426,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1770817746650,
+    "last_content_update": 1770819424365,
     "read_only": false,
     "read_only_alternatives": []
 }
