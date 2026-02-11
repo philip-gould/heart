@@ -11,7 +11,31 @@ ui <- page_sidebar(
   ),
   theme = bs_theme(bootswatch = "pulse"),
   sidebar = sidebar(
-    "Filters coming soon..."
+    selectInput(
+      inputId = "outcome",
+      label = "Outcome:",
+      choices = c("All", "Survived", "Died")
+    ),
+    selectInput(
+      inputId = "diagnosis",
+      label = "Diagnosis:",
+      choices = c("All", sort(unique(as.character(heart$DIAGNOSIS)))),
+      selected = "All"
+    ),
+    selectInput(
+      inputId = "drg",
+      label = "DRG:",
+      choices = c("All", sort(unique(as.character(heart$DRG)))),
+      selected = "All"
+    ),
+    sliderInput(
+      inputId = "age_range",
+      label = "Age Range:",
+      min = min(heart$AGE),
+      max = max(heart$AGE),
+      value = c(min(heart$AGE), max(heart$AGE))
+    )
+    
   ),
   navset_tab(
     nav_panel("Overview", "Overview content coming soon..."),
@@ -22,7 +46,22 @@ ui <- page_sidebar(
 
 server <- function(input, output, session) {
   output$data_table <- DT::renderDataTable({
-    heart
+    filtered_data()
+  })
+  
+  filtered_data <- reactive({
+    d <- heart
+    if (input$outcome != "All") {
+      d <- d[d$DIED == input$outcome, ]
+    }
+    if (input$diagnosis != "All") {
+      d <- d[as.character(d$DIAGNOSIS) == input$diagnosis, ]
+    }
+    if (input$drg != "All") {
+      d <- d[as.character(d$DRG) == input$drg, ]
+    }
+    d <- d[d$AGE >= input$age_range[1] & d$AGE <= input$age_range[2], ]
+    d
   })
   
 }
