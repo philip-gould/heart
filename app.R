@@ -1,6 +1,7 @@
 library(shiny)
 library(bslib)
 library(ggplot2)
+library(plotly)
 #library(DT) # recommended use is DT::fun() structure to reduce time
 
 heart <- readRDS("data/heart.rds")
@@ -69,7 +70,7 @@ ui <- page_sidebar(
     ),
     nav_panel(
       "Explore", 
-      "Explore content coming soon..."
+      plotlyOutput("scatter_plot")
     ),
     nav_panel(
       "Data", 
@@ -128,6 +129,20 @@ server <- function(input, output, session) {
         axis.title = element_text(size = 16),
         axis.text = element_text(size = 14)
       )
+  })
+  # Plotly interactive
+  output$scatter_plot <- renderPlotly({
+    df <- filtered_data()
+    req(nrow(df) >= 1)
+    if(nrow(df) > 1000) {
+      df <- df[sample(nrow(df), 1000), ]
+    }
+    p <- ggplot(df, aes(x = AGE, y = LOS, color = SEX)) +
+      geom_point(alpha = 0.3) +
+      labs(x = "Age", y = "Length of Stay (days)", color = "Sex") +
+      geom_smooth(method = "lm", se = FALSE) +
+      theme_minimal()
+    ggplotly(p)
   })
   
 }
